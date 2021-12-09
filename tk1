@@ -1,0 +1,21 @@
+from tkinter import *
+
+
+
+window = Tk()
+
+window.geometry('500x350')
+
+window.title("Добро пожаловать в приложение PythonRu")
+lbl = Label(window, text="Привет")
+lbl.grid(column=0, row=0)
+
+btn = Button(window, text="Не нажимать!", pady="6")
+
+
+
+
+
+btn.place(x=10, y=300)
+
+window.mainloop()
