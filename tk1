@@ -11,11 +11,13 @@ lbl = Label(window, text="Привет")
 lbl.grid(column=0, row=0)
 
 btn = Button(window, text="Не нажимать!", pady="6")
+btn2 = Button(window, text="Пес", pady="6")
 
 
 
 
 
+btn2.place(x=100, y=300)
 btn.place(x=10, y=300)
 
 window.mainloop()
