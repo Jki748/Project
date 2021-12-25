@@ -125,20 +125,19 @@ class App:
             conn.close()
             # for value in cursor.execute("SELECT * FROM library"):
             #     print(value)
-        tree = ttk.Treeview(column=("column1", "column2", "column3","column4","column5","column6","column7"), show='headings')
-        tree.heading("#1", text="дата")
-        tree.heading("#2", text="номер")
-        tree.heading("#3", text="название")
-        tree.heading("#4", text="автор")
-        tree.heading("#5", text="год выпуска")
-        tree.heading("#6", text="цена")
-        tree.heading("#7", text="дата списания")
+        tree = ttk.Treeview(column=("column1","column2", "column3", "column4","column5","column6","column7","column8"), show='headings')
+        tree.heading("#1", text="id")
+        tree.heading("#2", text="дата")
+        tree.heading("#3", text="номер")
+        tree.heading("#4", text="название")
+        tree.heading("#5", text="автор")
+        tree.heading("#6", text="год выпуска")
+        tree.heading("#7", text="цена")
+        tree.heading("#8", text="дата списания")
         tree.pack()
 
         b2 = Button(text="Вывести книги", command= show_books)
         b2.pack()
-
-
 
 
 App()
