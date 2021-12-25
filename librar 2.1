@@ -1,0 +1,144 @@
+import sqlite3
+from tkinter import Tk, Label, Frame, Menu, StringVar, Entry, Button
+from tkinter import ttk
+import tkinter as tk
+
+
+class Library_db():
+    def __init__(self):
+        self.db = sqlite3.connect("lib.db")
+        self.cursor = self.db.cursor()
+
+        self.cursor.execute("""CREATE TABLE IF NOT EXISTS library (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            date DATE,
+            number INTEGER,
+            name VARCHAR(100), 
+            author VARCHAR(100),
+            datee DATE,
+            price INTEGER,
+            dateee INTEGER
+            ) """)
+
+    def create(self, date, number, name, author, datee, price, dateee):
+        self.cursor.execute(
+            "INSERT OR IGNORE INTO library (date, number, name, author, datee, price, dateee ) VALUES (?, ?, ?, ?, ?, ?, ?)",
+            (date, number, name, author, datee, price, dateee))
+        self.db.commit()
+
+    def list(self):
+        for value in self.cursor.execute("SELECT * FROM library"):
+            print(value)
+
+
+class App:
+    def __init__(self):
+        self.library = Library_db()
+        self.window = Tk()
+        self.window.geometry('700x500')
+        self. window.title("Добро пожаловать в приложение")
+        self.menu()
+
+        # self.fill()
+        self.window.mainloop()
+
+    def menu(self):
+        mainmenu = Menu(self.window)
+        self.window.config(menu=mainmenu)
+        mainmenu.add_command(label='Создать книгу', command=self.fill)
+        mainmenu.add_command(label='Список всех книг', command = self.all_books)
+        mainmenu.add_command(label='Поиск книг')
+        mainmenu.add_command(label='Количество книг')
+        mainmenu.add_command(label='Удалить книгу')
+        mainmenu.add_command(label='Назад')
+        mainmenu.add_command(label='Выйти', command=self.clear)
+
+
+    def clear(self):
+        self.window.destroy()
+
+    def fill(self):
+        def save():
+            self.library.create(date.get(), number.get(), name.get(), author.get(), datee.get(), price.get(),
+                                dateee.get())
+            save.config(text="Сохранено")
+
+        date = StringVar()
+        number = StringVar()
+        name = StringVar()
+        author = StringVar()
+        datee = StringVar()
+        price = StringVar()
+        dateee = StringVar()
+        btn = Button(text="Сохранить", command=save)
+        btn.grid(row=15, column=4, sticky="w")
+
+        lb = Label(text="")
+        lb.grid(row=14, column=4, sticky="w")
+
+
+        save = Label(text="")
+        save.grid(row=30, column=4, sticky="w")
+
+
+        date_label = Label(text="Дата:")
+        number_label = Label(text="Инвентарный номер или ISBN:")
+        name_label = Label(text="Название:")
+        author_label = Label(text="Автор:")
+        datee_label = Label(text="Год выпуска:")
+        price_label = Label(text="Цена:")
+        dateee_label = Label(text="Дата списания:")
+
+        date_entry = Entry(textvariable=date)
+        number_entry = Entry(textvariable=number)
+        name_entry = Entry(textvariable=name)
+        author_entry = Entry(textvariable=author)
+        datee_entry = Entry(textvariable=datee)
+        price_entry = Entry(textvariable=price)
+        dateee_entry = Entry(textvariable=dateee)
+
+        date_label.grid(row=0, column=0, sticky="w")
+        number_label.grid(row=4, column=0, sticky="w")
+        name_label.grid(row=5, column=0, sticky="w")
+        author_label.grid(row=6, column=0, sticky="w")
+        datee_label.grid(row=7, column=0, sticky="w")
+        price_label.grid(row=8, column=0, sticky="w")
+        dateee_label.grid(row=9, column=0, sticky="w")
+
+        date_entry.grid(row=0, column=4, sticky="w")
+        number_entry.grid(row=4, column=4, sticky="w")
+        name_entry.grid(row=5, column=4, sticky="w")
+        author_entry.grid(row=6, column=4, sticky="w")
+        datee_entry.grid(row=7, column=4, sticky="w")
+        price_entry.grid(row=8, column=4, sticky="w")
+        dateee_entry.grid(row=9, column=4, sticky="w")
+
+    def all_books(self):
+        def show_books():
+            conn = sqlite3.connect("lib.db")
+            cur = conn.cursor()
+            cur.execute("SELECT * FROM library")
+            rows = cur.fetchall()
+            for row in rows:
+                print(row)  # it print all records in the database
+                tree.insert("", tk.END, values=row)
+            conn.close()
+            # for value in cursor.execute("SELECT * FROM library"):
+            #     print(value)
+        tree = ttk.Treeview(column=("column1", "column2", "column3","column4","column5","column6","column7"), show='headings')
+        tree.heading("#1", text="дата")
+        tree.heading("#2", text="номер")
+        tree.heading("#3", text="название")
+        tree.heading("#4", text="автор")
+        tree.heading("#5", text="год выпуска")
+        tree.heading("#6", text="цена")
+        tree.heading("#7", text="дата списания")
+        tree.pack()
+
+        b2 = Button(text="Вывести книги", command= show_books)
+        b2.pack()
+
+
+
+
+App()
