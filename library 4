@@ -57,8 +57,8 @@ class App:
         self.window.config(menu=mainmenu)
         mainmenu.add_command(label='Создать книгу', command=self.fill)
         mainmenu.add_command(label='Список всех книг', command = self.all_books)
-        mainmenu.add_command(label='Поиск книг', command = self.search_book)
-
+        mainmenu.add_command(label='Поиск книг по автору', command = self.search_book)
+        mainmenu.add_command(label='Поиск книг по номеру', command=self.search_book_n)
 
 
     def clear(self):
@@ -140,42 +140,25 @@ class App:
         self.frames.append(frame_search_books)
 
         s = StringVar()
-        s_label = Label(master=frame_search_books, text="Введите автора, название, инвентарный номер или ISBN:")
+        s_label = Label(master=frame_search_books, text="Введите автора или название:")
         s_entry = Entry(master=frame_search_books, textvariable=s)
-
-        # def delete(item):
-        #     conn = sqlite3.connect("lib.db")
-        #     cur = conn.cursor()
-        #     cur.execute(
-        #         "DELETE * FROM library where name like '%{0}%' or author like '%{0}%' or number like '%{0}%'".format(item))
-        #     rows = cur.fetchall()
-        #     for row in rows:
-        #         print(row)
-        #         tree.insert("", tk.END, values=row)
-        #     conn.close()
 
 
         def show_book(s):
+            for i in tree.get_children():
+                tree.delete(i)
             conn = sqlite3.connect("lib.db")
             cur = conn.cursor()
-            cur.execute("SELECT * FROM library where name like '%{0}%' or author like '%{0}%' or number like '%{0}%'".format(s))
+            cur.execute("SELECT * FROM library where name like '%{0}%' or author like '%{0}%'".format(s))
             rows = cur.fetchall()
             for row in rows:
-                print(row)
                 tree.insert("", tk.END, values=row)
             conn.close()
         def show_boooook():
             show_book(s.get())
 
-        # def deeel():
-        #
-        #     # item = tree.focus()
-        #     item = tree.selection()
-        #     delete(item.get())
 
 
-        # frame_search_books = tk.Frame()
-        # self.frames.append(frame_search_books)
 
         tree = ttk.Treeview(master=frame_search_books, column=("column1", "column2", "column3", "column4", "column5", "column6", "column7", "column8", "coloumn9"), show='headings')
         tree.heading("#1", text="id")
@@ -201,18 +184,70 @@ class App:
 
         tree.grid()
 
-
-
-
         s_label.grid(sticky="w")
         s_entry.grid(sticky="w")
-
 
         b2 = Button(master=frame_search_books, text="Поиск", command=show_boooook)
         b2.grid(sticky="w")
 
-        # del_but = Button(master=frame_search_books, text="Удалить", command=deeel)
-        # del_but.grid(sticky="w")
+        frame_search_books.pack()
+
+    def search_book_n(self):
+        self.frames_clear()
+
+        frame_search_books = tk.Frame()
+        self.frames.append(frame_search_books)
+
+        s = StringVar()
+        s_label = Label(master=frame_search_books, text="Введите инвентарный номер или ISBN:")
+        s_entry = Entry(master=frame_search_books, textvariable=s)
+
+
+
+        def show_book_n(s):
+            for i in tree.get_children():
+                tree.delete(i)
+            conn = sqlite3.connect("lib.db")
+            cur = conn.cursor()
+            cur.execute("SELECT * FROM library where number like '%{0}%' or date like '%{0}%' ".format(s))
+            rows = cur.fetchall()
+            for row in rows:
+                tree.insert("", tk.END, values=row)
+            conn.close()
+
+        def show_boooook_n():
+            show_book_n(s.get())
+
+        tree = ttk.Treeview(master=frame_search_books, column=(
+        "column1", "column2", "column3", "column4", "column5", "column6", "column7", "column8", "coloumn9"),
+                            show='headings')
+        tree.heading("#1", text="id")
+        tree.heading("#2", text="дата")
+        tree.heading("#3", text="инвентарный номер")
+        tree.heading("#4", text="название")
+        tree.heading("#5", text="автор")
+        tree.heading("#6", text="год выпуска")
+        tree.heading("#7", text="цена")
+        tree.heading("#8", text="дата списания")
+        tree.heading("#9", text="номер акта списания")
+
+        tree.column("#1", width=3)
+        tree.column("#2", width=80)
+        tree.column("#3", width=109)
+        tree.column("#4", width=150)
+        tree.column("#5", width=100)
+        tree.column("#6", width=100)
+        tree.column("#7", width=50)
+        tree.column("#8", width=80)
+        tree.column("#9", width=129)
+
+        tree.grid()
+
+        s_label.grid(sticky="w")
+        s_entry.grid(sticky="w")
+
+        b2 = Button(master=frame_search_books, text="Поиск", command=show_boooook_n)
+        b2.grid(sticky="w")
 
         frame_search_books.pack()
 
@@ -221,32 +256,35 @@ class App:
     def all_books(self):
         self.frames_clear()
         def show_books():
+            for i in tree.get_children():
+                tree.delete(i)
             conn = sqlite3.connect("lib.db")
             cur = conn.cursor()
             cur.execute("SELECT * FROM library")
             rows = cur.fetchall()
             for row in rows:
-                # print(row)  # it print all records in the database
                 tree.insert("", tk.END, values=row)
             conn.close()
 
         def in_library():
+            for i in tree.get_children():
+                tree.delete(i)
             conn = sqlite3.connect("lib.db")
             cur = conn.cursor()
             cur.execute("SELECT * FROM library where dateee = '' ")
             rows = cur.fetchall()
             for row in rows:
-                # print(row)  # it print all records in the database
                 tree.insert("", tk.END, values=row)
             conn.close()
 
         def not_in_library():
+            for i in tree.get_children():
+                tree.delete(i)
             conn = sqlite3.connect("lib.db")
             cur = conn.cursor()
-            cur.execute("SELECT * FROM library where dateee IS NOT NULL")
+            cur.execute("SELECT * FROM library where dateee not in('')")
             rows = cur.fetchall()
             for row in rows:
-                # print(row)  # it print all records in the database
                 tree.insert("", tk.END, values=row)
             conn.close()
 
@@ -283,8 +321,7 @@ class App:
         b2 = Button(master=frame_all_books, text="Вывести книги в библиотеке", command=in_library)
         b2.grid(sticky="w")
 
-        b3 = Button(master=frame_all_books, text="Вывести списанные книги") 
-        #command=not_in_library
+        b3 = Button(master=frame_all_books, text="Вывести списанные книги", command=not_in_library)
         b3.grid(sticky="w")
 
         b4 = Button(master=frame_all_books, text="Вывести все книги", command=show_books)
