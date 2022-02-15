@@ -2,13 +2,14 @@ import sqlite3
 from tkinter import Tk, Label, Frame, Menu, StringVar, Entry, Button
 from tkinter import ttk
 import tkinter as tk
+from tkinter import *
 
+#издательство
 
 class Library_db():
     def __init__(self):
         self.db = sqlite3.connect("lib.db")
         self.cursor = self.db.cursor()
-
         self.cursor.execute("""CREATE TABLE IF NOT EXISTS library (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             date DATE,
@@ -17,13 +18,19 @@ class Library_db():
             author VARCHAR(100),
             datee DATE,
             price INTEGER,
-            dateee INTEGER
+            dateee INTEGER,
+            izd VARCHAR(100)
             ) """)
 
-    def create(self, date, number, name, author, datee, price, dateee):
+
+
+
+
+
+    def create(self, date, number, name, author, datee, price, dateee, izd):
         self.cursor.execute(
-            "INSERT OR IGNORE INTO library (date, number, name, author, datee, price, dateee ) VALUES (?, ?, ?, ?, ?, ?, ?)",
-            (date, number, name, author, datee, price, dateee))
+            "INSERT OR IGNORE INTO library (date, number, name, author, datee, price, dateee, izd) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
+            (date, number, name, author, datee, price, dateee, izd))
         self.db.commit()
 
     def list(self):
@@ -32,13 +39,46 @@ class Library_db():
 
 
 
+    # def create_second_table (self):
+    #     self.db = sqlite3.connect("lib.db")
+    #     self.cursor = self.db.cursor()
+    #     self.cursor.execute("""CREATE TABLE IF NOT EXISTS table (
+    #                 id INTEGER PRIMARY KEY AUTOINCREMENT,
+    #                 inv_num INTEGER
+    #                 ) """)
+
+    def fill_to_sec_table(self, inv_num):
+        self.db = sqlite3.connect("lib.db")
+        self.cursor = self.db.cursor()
+        self.cursor.execute("""CREATE TABLE IF NOT EXISTS table (
+                            id INTEGER PRIMARY KEY AUTOINCREMENT,
+                            inv_num INTEGER
+                            ) """)
+
+        self.cursor.execute(
+            "INSERT OR IGNORE INTO library (inv_num) VALUES (?)",
+            (inv_num))
+        self.db.commit()
+
+    def delete_sec_table(self):
+        self.cursor.execute("""DROP TABLE table""")
+        self.db.commit()
+
+
+
 
 class App:
+    frames = []
+
+    def frames_clear(self):
+        for i in self.frames:
+            i.destroy()
+
     def __init__(self):
         self.library = Library_db()
         self.window = Tk()
-        self.window.geometry('700x500')
-        self. window.title("Добро пожаловать в приложение")
+        self.window.geometry('810x360')
+        self. window.title("Приложение для учета книг")
         self.menu()
 
         # self.fill()
@@ -49,20 +89,86 @@ class App:
         self.window.config(menu=mainmenu)
         mainmenu.add_command(label='Создать книгу', command=self.fill)
         mainmenu.add_command(label='Список всех книг', command = self.all_books)
-        mainmenu.add_command(label='Поиск книг', command = self.search_book)
-        mainmenu.add_command(label='Количество книг')
-        mainmenu.add_command(label='Удалить книгу')
-        mainmenu.add_command(label='Назад')
-        mainmenu.add_command(label='Выйти', command=self.clear)
+        mainmenu.add_command(label='Поиск книг по автору', command = self.search_book)
+        mainmenu.add_command(label='Поиск книг по номеру', command=self.search_book_n)
+        mainmenu.add_command(label='Список потерянных книг', command=self.spisok)
 
 
     def clear(self):
         self.window.destroy()
 
+    def spisok(self):
+        self.frames_clear()
+
+        frame_fill_1 = tk.Frame()
+        self.frames.append(frame_fill_1)
+
+        def add_to_list():
+            self.table.fill_to_sec_table(inv_num.get())
+
+            # def show_book_1(inv_num):
+            #     for i in tree.get_children():
+            #         tree.delete(i)
+            #     conn = sqlite3.connect("lib.db")
+            #     cur = conn.cursor()
+            #     cur.execute("SELECT * FROM library where number like '%{0}%'".format(inv_num))
+            #     rows = cur.fetchall()
+            #     for row in rows:
+            #         tree.insert("", tk.END, values=row)
+            #     conn.close()
+            #
+            # def show_boooook_1():
+            #     show_book_1(inv_num.get())
+            #
+            # show_boooook_1()
+
+
+        tree = ttk.Treeview(master=frame_fill_1, column=(
+        "column1", "column2", "column3", "column4", "column5", "column6", "column7", "column8", "coloumn9"),
+                            show='headings')
+        tree.heading("#1", text="id")
+        tree.heading("#2", text="дата")
+        tree.heading("#3", text="инвентарный номер")
+        tree.heading("#4", text="название")
+        tree.heading("#5", text="автор")
+        tree.heading("#6", text="год выпуска")
+        tree.heading("#7", text="цена")
+        tree.heading("#8", text="дата списания")
+        tree.heading("#9", text="номер акта списания")
+
+        tree.column("#1", width=3)
+        tree.column("#2", width=80)
+        tree.column("#3", width=109)
+        tree.column("#4", width=150)
+        tree.column("#5", width=100)
+        tree.column("#6", width=100)
+        tree.column("#7", width=50)
+        tree.column("#8", width=80)
+        tree.column("#9", width=129)
+
+        tree.grid()
+
+        inv_num = StringVar()
+        num_lab = Label(master=frame_fill_1, text="Введите инвентарный номер:")
+        num_lab.grid(sticky="w")
+        num_entry = Entry(master=frame_fill_1, textvariable=inv_num)
+        num_entry.grid(sticky="w")
+
+        button = Button(master=frame_fill_1, text="Добавить в список", command=add_to_list)
+        button.grid(sticky="w")
+
+        button2 = Button(master=frame_fill_1, text="Показать список утерянных книг", command=add_to_list)
+        button2.grid(sticky="w")
+
+        frame_fill_1.pack()
+
+
+
     def fill(self):
+        self.frames_clear()
         def save():
             self.library.create(date.get(), number.get(), name.get(), author.get(), datee.get(), price.get(),
-                                dateee.get())
+                                dateee.get(), izd.get())
             save.config(text="Сохранено")
 
         date = StringVar()
@@ -72,32 +178,39 @@ class App:
         datee = StringVar()
         price = StringVar()
         dateee = StringVar()
-        btn = Button(text="Сохранить", command=save)
+        izd = StringVar()
+
+        frame_fill = tk.Frame()
+        self.frames.append(frame_fill)
+
+        btn = Button(master=frame_fill, text="Сохранить", command=save)
         btn.grid(row=15, column=4, sticky="w")
 
-        lb = Label(text="")
+        lb = Label(master=frame_fill, text="")
         lb.grid(row=14, column=4, sticky="w")
 
 
-        save = Label(text="")
+        save = Label(master=frame_fill, text="")
         save.grid(row=30, column=4, sticky="w")
 
 
-        date_label = Label(text="Дата:")
-        number_label = Label(text="Инвентарный номер или ISBN:")
-        name_label = Label(text="Название:")
-        author_label = Label(text="Автор:")
-        datee_label = Label(text="Год выпуска:")
-        price_label = Label(text="Цена:")
-        dateee_label = Label(text="Дата списания:")
+        date_label = Label(master=frame_fill, text="Дата:")
+        number_label = Label(master=frame_fill, text="Инвентарный номер:")
+        name_label = Label(master=frame_fill, text="Название:")
+        author_label = Label(master=frame_fill, text="Автор:")
+        datee_label = Label(master=frame_fill, text="Год выпуска:")
+        price_label = Label(master=frame_fill, text="Цена:")
+        dateee_label = Label(master=frame_fill, text="Дата списания:")
+        izd_label = Label(master=frame_fill, text="Номер акта списания:")
 
-        date_entry = Entry(textvariable=date)
-        number_entry = Entry(textvariable=number)
-        name_entry = Entry(textvariable=name)
-        author_entry = Entry(textvariable=author)
-        datee_entry = Entry(textvariable=datee)
-        price_entry = Entry(textvariable=price)
-        dateee_entry = Entry(textvariable=dateee)
+        date_entry = Entry(master=frame_fill, textvariable=date)
+        number_entry = Entry(master=frame_fill, textvariable=number)
+        name_entry = Entry(master=frame_fill, textvariable=name)
+        author_entry = Entry(master=frame_fill, textvariable=author)
+        datee_entry = Entry(master=frame_fill, textvariable=datee)
+        price_entry = Entry(master=frame_fill, textvariable=price)
+        dateee_entry = Entry(master=frame_fill, textvariable=dateee)
+        izd_entry = Entry(master=frame_fill, textvariable=izd)
 
         date_label.grid(row=0, column=0, sticky="w")
         number_label.grid(row=4, column=0, sticky="w")
@@ -106,6 +219,7 @@ class App:
         datee_label.grid(row=7, column=0, sticky="w")
         price_label.grid(row=8, column=0, sticky="w")
         dateee_label.grid(row=9, column=0, sticky="w")
+        izd_label.grid(row=10, column=0, sticky="w")
 
         date_entry.grid(row=0, column=4, sticky="w")
         number_entry.grid(row=4, column=4, sticky="w")
@@ -114,78 +228,214 @@ class App:
         datee_entry.grid(row=7, column=4, sticky="w")
         price_entry.grid(row=8, column=4, sticky="w")
         dateee_entry.grid(row=9, column=4, sticky="w")
+        izd_entry.grid(row=10, column=4, sticky="w")
+        frame_fill.pack(fill='both')
 
 
     def search_book(self):
-        def show_book(self):
-            conn = sqlite3.connect("lib.db")
-            cur = conn.cursor()
-            cur.execute(
-                "SELECT * FROM library where name like '%{0}%' or author like '%{0}%' or number like '%{0}%'".format(
-                s)).fetchall()
-            rows = cur.fetchall()
-            for row in rows:
-                print(row)  # it print all records in the database
-                tree.insert("", tk.END, values=row)
-            conn.close()
+        self.frames_clear()
+
+        frame_search_books = tk.Frame()
+        self.frames.append(frame_search_books)
 
         s = StringVar()
-        s_label = Label(text="Введите автора, название, инвентаризационный номер или ISBN:")
-        s_entry = Entry()
+        s_label = Label(master=frame_search_books, text="Введите автора или название:")
+        s_entry = Entry(master=frame_search_books, textvariable=s)
+        var = IntVar()
+        var.set(0)
 
 
 
 
-        tree = ttk.Treeview(
-            column=("column1", "column2", "column3", "column4", "column5", "column6", "column7", "column8"),
-            show='headings')
+        def show_book(s):
+            for i in tree.get_children():
+                tree.delete(i)
+            conn = sqlite3.connect("lib.db")
+            cur = conn.cursor()
+            cur.execute("SELECT * FROM library where name like '%{0}%' or author like '%{0}%'".format(s))
+            rows = cur.fetchall()
+            for row in rows:
+                tree.insert("", tk.END, values=row)
+            conn.close()
+        def show_boooook():
+            show_book(s.get())
+
+
+
+
+        tree = ttk.Treeview(master=frame_search_books, column=("column1", "column2", "column3", "column4", "column5", "column6", "column7", "column8", "coloumn9"), show='headings')
         tree.heading("#1", text="id")
         tree.heading("#2", text="дата")
-        tree.heading("#3", text="номер")
+        tree.heading("#3", text="инвентарный номер")
         tree.heading("#4", text="название")
         tree.heading("#5", text="автор")
         tree.heading("#6", text="год выпуска")
         tree.heading("#7", text="цена")
         tree.heading("#8", text="дата списания")
-        tree.grid()
+        tree.heading("#9", text="номер акта списания")
 
-        b2 = Button(text="Поиск", command = show_book)
-        b2.grid(sticky="w")
+        tree.column("#1", width=3)
+        tree.column("#2", width=80)
+        tree.column("#3", width=109)
+        tree.column("#4", width=150)
+        tree.column("#5", width=100)
+        tree.column("#6", width=100)
+        tree.column("#7", width=50)
+        tree.column("#8", width=80)
+        tree.column("#9", width=129)
+
+
+        tree.grid()
 
         s_label.grid(sticky="w")
         s_entry.grid(sticky="w")
 
 
+        b2 = Button(master=frame_search_books, text="Поиск", command=show_boooook)
+        b2.grid(sticky="w")
+
+
+        frame_search_books.pack()
+
+    def search_book_n(self):
+        self.frames_clear()
+
+        frame_search_books = tk.Frame()
+        self.frames.append(frame_search_books)
+
+        s = StringVar()
+        s_label = Label(master=frame_search_books, text="Введите инвентарный номер:")
+        s_entry = Entry(master=frame_search_books, textvariable=s)
 
 
 
-    def all_books(self):
-        def show_books():
+
+
+        def show_book_n(s):
+            for i in tree.get_children():
+                tree.delete(i)
             conn = sqlite3.connect("lib.db")
             cur = conn.cursor()
-            cur.execute("SELECT * FROM library")
+            cur.execute("SELECT * FROM library where number like '%{0}%' or date like '%{0}%' ".format(s))
             rows = cur.fetchall()
             for row in rows:
-                print(row)  # it print all records in the database
                 tree.insert("", tk.END, values=row)
             conn.close()
 
+        def show_boooook_n():
+            show_book_n(s.get())
 
-            # for value in cursor.execute("SELECT * FROM library"):
-            #     print(value)
-        tree = ttk.Treeview(column=("column1","column2", "column3", "column4","column5","column6","column7","column8"), show='headings')
+        tree = ttk.Treeview(master=frame_search_books, column=(
+        "column1", "column2", "column3", "column4", "column5", "column6", "column7", "column8", "coloumn9"),
+                            show='headings')
         tree.heading("#1", text="id")
         tree.heading("#2", text="дата")
-        tree.heading("#3", text="номер")
+        tree.heading("#3", text="инвентарный номер")
         tree.heading("#4", text="название")
         tree.heading("#5", text="автор")
         tree.heading("#6", text="год выпуска")
         tree.heading("#7", text="цена")
         tree.heading("#8", text="дата списания")
+        tree.heading("#9", text="номер акта списания")
+
+        tree.column("#1", width=3)
+        tree.column("#2", width=80)
+        tree.column("#3", width=109)
+        tree.column("#4", width=150)
+        tree.column("#5", width=100)
+        tree.column("#6", width=100)
+        tree.column("#7", width=50)
+        tree.column("#8", width=80)
+        tree.column("#9", width=129)
+
         tree.grid()
 
-        b2 = Button(text="Вывести книги", command= show_books)
+        s_label.grid(sticky="w")
+        s_entry.grid(sticky="w")
+
+        b2 = Button(master=frame_search_books, text="Поиск", command=show_boooook_n)
         b2.grid(sticky="w")
+
+        frame_search_books.pack()
+
+
+
+    def all_books(self):
+        self.frames_clear()
+        def show_books():
+            for i in tree.get_children():
+                tree.delete(i)
+            conn = sqlite3.connect("lib.db")
+            cur = conn.cursor()
+            cur.execute("SELECT * FROM library")
+            rows = cur.fetchall()
+            for row in rows:
+                tree.insert("", tk.END, values=row)
+            conn.close()
+
+        def in_library():
+            for i in tree.get_children():
+                tree.delete(i)
+            conn = sqlite3.connect("lib.db")
+            cur = conn.cursor()
+            cur.execute("SELECT * FROM library where dateee = '' ")
+            rows = cur.fetchall()
+            for row in rows:
+                tree.insert("", tk.END, values=row)
+            conn.close()
+
+        def not_in_library():
+            for i in tree.get_children():
+                tree.delete(i)
+            conn = sqlite3.connect("lib.db")
+            cur = conn.cursor()
+            cur.execute("SELECT * FROM library where dateee not in('')")
+            rows = cur.fetchall()
+            for row in rows:
+                tree.insert("", tk.END, values=row)
+            conn.close()
+
+
+
+        frame_all_books = tk.Frame()
+        self.frames.append(frame_all_books)
+        tree = ttk.Treeview(master=frame_all_books, column=(
+        "column1", "column2", "column3", "column4", "column5", "column6", "column7", "column8", "coloumn9"),
+                            show='headings')
+        tree.heading("#1", text="id")
+        tree.heading("#2", text="дата")
+        tree.heading("#3", text="инвентарный номер")
+        tree.heading("#4", text="название")
+        tree.heading("#5", text="автор")
+        tree.heading("#6", text="год выпуска")
+        tree.heading("#7", text="цена")
+        tree.heading("#8", text="дата списания")
+        tree.heading("#9", text="номер акта списания")
+
+        tree.column("#1", width=3)
+        tree.column("#2", width=80)
+        tree.column("#3", width=109)
+        tree.column("#4", width=150)
+        tree.column("#5", width=100)
+        tree.column("#6", width=100)
+        tree.column("#7", width=50)
+        tree.column("#8", width=80)
+        tree.column("#9", width=129)
+
+        tree.grid()
+
+
+        b2 = Button(master=frame_all_books, text="Вывести книги в библиотеке", command=in_library)
+        b2.grid(sticky="w")
+
+        b3 = Button(master=frame_all_books, text="Вывести списанные книги", command=not_in_library)
+        b3.grid(sticky="w")
+
+        b4 = Button(master=frame_all_books, text="Вывести все книги", command=show_books)
+        b4.grid(sticky="w")
+
+        frame_all_books.pack()
 
 
 App()
+
