@@ -123,11 +123,12 @@ class App:
             self.library.cursor.execute("")
             for i in tree.get_children():
                 tree.delete(i)
-            self.library.cursor.execute(
+            rows=self.library.cursor.execute(
                 "select * from library left outer join Inv on library.number = Inv.inv_num where Inv.inv_num is NULL and library.izd = ''").fetchall()
-            rows = self.library.cursor.fetchall()
+            # rows = self.library.cursor.fetchall()
             for row in rows:
                 tree.insert("", tk.END, values=row)
+            # self.library.cursor.execute("DROP table Inv")
 
 
         # self.library.cursor.execute(
