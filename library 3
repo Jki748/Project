@@ -280,6 +280,15 @@ class App:
         var = IntVar()
         var.set(0)
 
+        def delete_book_a():
+            to_delete = s_entry.get()
+            self.library.cursor.execute("DELETE FROM library where name like '%{0}%' or author like '%{0}%'".format(to_delete))
+            self.library.db.commit()
+
+            lol15 = Label(master=frame_search_books, text="")
+            lol15.grid(row=2, )
+            lol15.config(text="Удалено")
+
 
 
 
@@ -329,6 +338,12 @@ class App:
         b2 = Button(master=frame_search_books, text="Поиск", command=show_boooook)
         b2.grid(sticky="w")
 
+        slabel = Label(master=frame_search_books, text="") # Чтоб было расстояние между кнопками
+        slabel.grid(sticky="w")
+
+        b7 = Button(master=frame_search_books, text="Удалить книгу", command = delete_book_a )
+        b7.grid(sticky="w")
+
 
         frame_search_books.pack()
 
@@ -342,8 +357,15 @@ class App:
         s_label = Label(master=frame_search_books, text="Введите инвентарный номер:")
         s_entry = Entry(master=frame_search_books, textvariable=s)
 
+        def delete_book_n():
+            to_delete = s_entry.get()
+            self.library.cursor.execute(
+                "DELETE FROM library where number like '%{0}%' or date like '%{0}%'".format(to_delete))
+            self.library.db.commit()
 
-
+            lol15 = Label(master=frame_search_books, text="")
+            lol15.grid(row=2, )
+            lol15.config(text="Удалено")
 
 
         def show_book_n(s):
@@ -388,6 +410,12 @@ class App:
         b2 = Button(master=frame_search_books, text="Поиск", command=show_boooook_n)
         b2.grid(sticky="w")
 
+        slabel = Label(master=frame_search_books, text="")  # Чтоб было расстояние между кнопками
+        slabel.grid(sticky="w")
+
+        b7 = Button(master=frame_search_books, text="Удалить книгу", command= delete_book_n)
+        b7.grid(sticky="w")
+
         frame_search_books.pack()
 
 
@@ -410,6 +438,12 @@ class App:
             lol.grid(row=1, )
             lol.config(text= pr)
 
+            b = self.library.cursor.execute("SELECT COUNT(*) FROM library ").fetchall()
+            count = 'количество', b
+            lol1 = Label(master=frame_all_books, text="")
+            lol1.grid(row=2, )
+            lol1.config(text=count)
+
 
         def in_library():
             for i in tree.get_children():
@@ -422,10 +456,17 @@ class App:
                 tree.insert("", tk.END, values=row)
 
             a = self.library.cursor.execute("SELECT SUM(price) FROM library where dateee = '' ").fetchall()
+
             pr = "цена:", a
             lol = Label(master=frame_all_books, text="")
             lol.grid(row=1, )
             lol.config(text=pr)
+
+            b = self.library.cursor.execute("SELECT COUNT(*) FROM library WHERE dateee = ''").fetchall()
+            count = 'количество', b
+            lol1 = Label(master=frame_all_books, text="")
+            lol1.grid(row=2, )
+            lol1.config(text=count)
 
 
 
@@ -442,6 +483,12 @@ class App:
             lol = Label(master=frame_all_books, text="")
             lol.grid(row=1,  )
             lol.config(text=pr)
+
+            b = self.library.cursor.execute("SELECT COUNT(*) FROM library WHERE dateee not in('')").fetchall()
+            count = 'количество', b
+            lol1 = Label(master=frame_all_books, text="")
+            lol1.grid(row=2, )
+            lol1.config(text=count)
 
 
 
