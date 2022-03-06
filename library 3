@@ -4,6 +4,7 @@ from tkinter import ttk
 import tkinter as tk
 from tkinter import *
 from datetime import datetime
+import configparser
 
 data = datetime.now().date()
 
@@ -393,6 +394,8 @@ class App:
 
     def all_books(self):
         self.frames_clear()
+        # frame_all_books = tk.Frame()
+        # self.frames.append(frame_all_books)
         def show_books():
             for i in tree.get_children():
                 tree.delete(i)
@@ -401,9 +404,11 @@ class App:
             for row in rows:
                 tree.insert("", tk.END, values=row)
 
-            # lol = Label(master=frame_all_books, text="")
-            # lol.grid(row=40, column=4, sticky="")
-            # lol.config(text="rer")
+            a = self.library.cursor.execute("SELECT SUM(price) FROM library").fetchall()
+            pr = "цена:", a
+            lol = Label(master=frame_all_books, text="")
+            lol.grid(row=1, )
+            lol.config(text= pr)
 
 
         def in_library():
@@ -416,6 +421,14 @@ class App:
             for row in rows:
                 tree.insert("", tk.END, values=row)
 
+            a = self.library.cursor.execute("SELECT SUM(price) FROM library where dateee = '' ").fetchall()
+            pr = "цена:", a
+            lol = Label(master=frame_all_books, text="")
+            lol.grid(row=1, )
+            lol.config(text=pr)
+
+
+
         def not_in_library():
             for i in tree.get_children():
                 tree.delete(i)
@@ -423,6 +436,12 @@ class App:
             rows = self.library.cursor.fetchall()
             for row in rows:
                 tree.insert("", tk.END, values=row)
+
+            a = self.library.cursor.execute("SELECT SUM(price) FROM library where dateee not in('')").fetchall()
+            pr = "цена:", a
+            lol = Label(master=frame_all_books, text="")
+            lol.grid(row=1,  )
+            lol.config(text=pr)
 
 
 
