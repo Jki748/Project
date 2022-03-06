@@ -3,6 +3,9 @@ from tkinter import Tk, Label, Frame, Menu, StringVar, Entry, Button
 from tkinter import ttk
 import tkinter as tk
 from tkinter import *
+from datetime import datetime
+
+data = datetime.now().date()
 
 
 
@@ -22,7 +25,7 @@ class Library_db():
             izd VARCHAR(100)
             ) """)
 
-        self.db = sqlite3.connect("lib.db")
+        # self.db = sqlite3.connect("lib.db")
         self.cursor.execute("""CREATE TABLE IF NOT EXISTS Inv (
                     id INTEGER PRIMARY KEY AUTOINCREMENT,
                     inv_num INTEGER
@@ -87,7 +90,7 @@ class App:
     def __init__(self):
         self.library = Library_db()
         self.window = Tk()
-        self.window.geometry('810x360')
+        self.window.geometry('810x370')
         self. window.title("Приложение для учета книг")
         self.menu()
 
@@ -118,14 +121,31 @@ class App:
             self.library.cursor.execute("INSERT OR IGNORE INTO Inv (inv_num) VALUES (?)", (inv_num,))
             self.library.db.commit()
 
+
         def list_lost_books():
             self.library.cursor.execute("")
-
-        self.library.cursor.execute(
-            "select * from library left outer join Inv on library.number = Inv.inv_num where Inv.inv_num is NULL and library.izd = ''").fetchall()
+            for i in tree.get_children():
+                tree.delete(i)
+            rows=self.library.cursor.execute(
+                "select * from library left outer join Inv on library.number = Inv.inv_num where Inv.inv_num is NULL and library.izd = ''").fetchall()
+            # rows = self.library.cursor.fetchall()
+            for row in rows:
+                tree.insert("", tk.END, values=row)
+            self.library.db.commit()
 
         # self.library.cursor.execute(
-        #     "select * from library left outer join Inv on library.number = Inv.inv_num where Inv.inv_num is NULL and library.izd = ''").fetchall()
+            # "update library set izd = 34 where library.id in (select id from library left outer join Inv on library.number = Inv.inv_num where Inv.inv_num is NULL and library.izd = '')")
+        def spisat():
+            num_akta = num_akta_entry.get()
+            year = datetime.today().year
+            sql1 = "update library set izd = {0}, dateee = {1} where library.id in (select library.id from library left outer join Inv on library.number = Inv.inv_num where Inv.inv_num is NULL and library.izd = '')".format(num_akta, year)
+            self.library.cursor.execute(sql1)
+            self.library.db.commit()
+
+
+
+
+
 
 
         tree = ttk.Treeview(master=frame_fill_1, column=(
@@ -138,7 +158,7 @@ class App:
         tree.heading("#5", text="автор")
         tree.heading("#6", text="год выпуска")
         tree.heading("#7", text="цена")
-        tree.heading("#8", text="дата списания")
+        tree.heading("#8", text="год списания")
         tree.heading("#9", text="номер акта списания")
 
         tree.column("#1", width=3)
@@ -162,8 +182,18 @@ class App:
         button = Button(master=frame_fill_1, text="Добавить в список", command=add_to_Inv)
         button.grid(sticky="w")
 
-        button2 = Button(master=frame_fill_1, text="Показать список утерянных книг", )
+        button2 = Button(master=frame_fill_1, text="Показать список утерянных книг", command=list_lost_books)
         button2.grid(sticky="w")
+
+
+        num_akta = StringVar()
+        num_akta_lab = Label(master=frame_fill_1, text="Введите номер акта списания:")
+        num_akta_lab.grid(sticky="w")
+        num_akta_entry = Entry(master=frame_fill_1, textvariable=num_akta)
+        num_akta_entry.grid(sticky="w")
+
+        button3 = Button(master=frame_fill_1, text="Списать утерянные", command=spisat)
+        button3.grid(sticky="w")
 
         frame_fill_1.pack()
 
@@ -205,7 +235,7 @@ class App:
         author_label = Label(master=frame_fill, text="Автор:")
         datee_label = Label(master=frame_fill, text="Год выпуска:")
         price_label = Label(master=frame_fill, text="Цена:")
-        dateee_label = Label(master=frame_fill, text="Дата списания:")
+        dateee_label = Label(master=frame_fill, text="Год списания:")
         izd_label = Label(master=frame_fill, text="Номер акта списания:")
 
         date_entry = Entry(master=frame_fill, textvariable=date)
@@ -275,7 +305,7 @@ class App:
         tree.heading("#5", text="автор")
         tree.heading("#6", text="год выпуска")
         tree.heading("#7", text="цена")
-        tree.heading("#8", text="дата списания")
+        tree.heading("#8", text="год списания")
         tree.heading("#9", text="номер акта списания")
 
         tree.column("#1", width=3)
@@ -336,7 +366,7 @@ class App:
         tree.heading("#5", text="автор")
         tree.heading("#6", text="год выпуска")
         tree.heading("#7", text="цена")
-        tree.heading("#8", text="дата списания")
+        tree.heading("#8", text="год списания")
         tree.heading("#9", text="номер акта списания")
 
         tree.column("#1", width=3)
@@ -371,6 +401,10 @@ class App:
             for row in rows:
                 tree.insert("", tk.END, values=row)
 
+            # lol = Label(master=frame_all_books, text="")
+            # lol.grid(row=40, column=4, sticky="")
+            # lol.config(text="rer")
+
 
         def in_library():
             for i in tree.get_children():
@@ -404,7 +438,7 @@ class App:
         tree.heading("#5", text="автор")
         tree.heading("#6", text="год выпуска")
         tree.heading("#7", text="цена")
-        tree.heading("#8", text="дата списания")
+        tree.heading("#8", text="год списания")
         tree.heading("#9", text="номер акта списания")
 
         tree.column("#1", width=3)
