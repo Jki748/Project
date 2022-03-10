@@ -3,6 +3,10 @@ from tkinter import Tk, Label, Frame, Menu, StringVar, Entry, Button
 from tkinter import ttk
 import tkinter as tk
 from tkinter import *
+from datetime import datetime
+import configparser
+
+data = datetime.now().date()
 
 
 
@@ -18,11 +22,13 @@ class Library_db():
             author VARCHAR(100),
             datee DATE,
             price INTEGER,
-            dateee INTEGER,
+            dateee DATE,
             izd VARCHAR(100)
             ) """)
 
-        self.db = sqlite3.connect("lib.db")
+
+
+        # self.db = sqlite3.connect("lib.db")
         self.cursor.execute("""CREATE TABLE IF NOT EXISTS Inv (
                     id INTEGER PRIMARY KEY AUTOINCREMENT,
                     inv_num INTEGER
@@ -87,7 +93,7 @@ class App:
     def __init__(self):
         self.library = Library_db()
         self.window = Tk()
-        self.window.geometry('810x360')
+        self.window.geometry('810x370')
         self. window.title("Приложение для учета книг")
         self.menu()
 
@@ -128,11 +134,22 @@ class App:
             # rows = self.library.cursor.fetchall()
             for row in rows:
                 tree.insert("", tk.END, values=row)
-            # self.library.cursor.execute("DROP table Inv")
-
+            self.library.db.commit()
 
         # self.library.cursor.execute(
-        #     "select * from library left outer join Inv on library.number = Inv.inv_num where Inv.inv_num is NULL and library.izd = ''").fetchall()
+            # "update library set izd = 34 where library.id in (select id from library left outer join Inv on library.number = Inv.inv_num where Inv.inv_num is NULL and library.izd = '')")
+        def spisat():
+            num_akta = num_akta_entry.get()
+            year = datetime.today().date()
+            # year = datetime.today().date()
+            sql1 = "update library set izd = {0}, dateee = datetime('now') where library.id in (select library.id from library left outer join Inv on library.number = Inv.inv_num where Inv.inv_num is NULL and library.izd = '')".format(num_akta, year)
+            self.library.cursor.execute(sql1)
+            self.library.db.commit()
+
+
+
+
+
 
 
         tree = ttk.Treeview(master=frame_fill_1, column=(
@@ -171,6 +188,16 @@ class App:
 
         button2 = Button(master=frame_fill_1, text="Показать список утерянных книг", command=list_lost_books)
         button2.grid(sticky="w")
+
+
+        num_akta = StringVar()
+        num_akta_lab = Label(master=frame_fill_1, text="Введите номер акта списания:")
+        num_akta_lab.grid(sticky="w")
+        num_akta_entry = Entry(master=frame_fill_1, textvariable=num_akta)
+        num_akta_entry.grid(sticky="w")
+
+        button3 = Button(master=frame_fill_1, text="Списать утерянные", command=spisat)
+        button3.grid(sticky="w")
 
         frame_fill_1.pack()
 
@@ -256,6 +283,15 @@ class App:
         var = IntVar()
         var.set(0)
 
+        def delete_book_a():
+            to_delete = s_entry.get()
+            self.library.cursor.execute("DELETE FROM library where name like '%{0}%' or author like '%{0}%'".format(to_delete))
+            self.library.db.commit()
+
+            lol15 = Label(master=frame_search_books, text="")
+            lol15.grid(row=2, )
+            lol15.config(text="Удалено")
+
 
 
 
@@ -305,6 +341,12 @@ class App:
         b2 = Button(master=frame_search_books, text="Поиск", command=show_boooook)
         b2.grid(sticky="w")
 
+        slabel = Label(master=frame_search_books, text="") # Чтоб было расстояние между кнопками
+        slabel.grid(sticky="w")
+
+        b7 = Button(master=frame_search_books, text="Удалить книгу", command = delete_book_a )
+        b7.grid(sticky="w")
+
 
         frame_search_books.pack()
 
@@ -318,8 +360,15 @@ class App:
         s_label = Label(master=frame_search_books, text="Введите инвентарный номер:")
         s_entry = Entry(master=frame_search_books, textvariable=s)
 
+        def delete_book_n():
+            to_delete = s_entry.get()
+            self.library.cursor.execute(
+                "DELETE FROM library where number like '%{0}%' or date like '%{0}%'".format(to_delete))
+            self.library.db.commit()
 
-
+            lol15 = Label(master=frame_search_books, text="")
+            lol15.grid(row=2, )
+            lol15.config(text="Удалено")
 
 
         def show_book_n(s):
@@ -364,12 +413,20 @@ class App:
         b2 = Button(master=frame_search_books, text="Поиск", command=show_boooook_n)
         b2.grid(sticky="w")
 
+        slabel = Label(master=frame_search_books, text="")  # Чтоб было расстояние между кнопками
+        slabel.grid(sticky="w")
+
+        b7 = Button(master=frame_search_books, text="Удалить книгу", command= delete_book_n)
+        b7.grid(sticky="w")
+
         frame_search_books.pack()
 
 
 
     def all_books(self):
         self.frames_clear()
+        # frame_all_books = tk.Frame()
+        # self.frames.append(frame_all_books)
         def show_books():
             for i in tree.get_children():
                 tree.delete(i)
@@ -377,6 +434,18 @@ class App:
             rows = self.library.cursor.fetchall()
             for row in rows:
                 tree.insert("", tk.END, values=row)
+
+            a = self.library.cursor.execute("SELECT SUM(price) FROM library").fetchall()
+            pr = "цена:", a
+            lol = Label(master=frame_all_books, text="")
+            lol.grid(row=1, )
+            lol.config(text= pr)
+
+            b = self.library.cursor.execute("SELECT COUNT(*) FROM library ").fetchall()
+            count = 'количество', b
+            lol1 = Label(master=frame_all_books, text="")
+            lol1.grid(row=2, )
+            lol1.config(text=count)
 
 
         def in_library():
@@ -389,6 +458,21 @@ class App:
             for row in rows:
                 tree.insert("", tk.END, values=row)
 
+            a = self.library.cursor.execute("SELECT SUM(price) FROM library where dateee = '' ").fetchall()
+
+            pr = "цена:", a
+            lol = Label(master=frame_all_books, text="")
+            lol.grid(row=1, )
+            lol.config(text=pr)
+
+            b = self.library.cursor.execute("SELECT COUNT(*) FROM library WHERE dateee = ''").fetchall()
+            count = 'количество', b
+            lol1 = Label(master=frame_all_books, text="")
+            lol1.grid(row=2, )
+            lol1.config(text=count)
+
+
+
         def not_in_library():
             for i in tree.get_children():
                 tree.delete(i)
@@ -396,6 +480,18 @@ class App:
             rows = self.library.cursor.fetchall()
             for row in rows:
                 tree.insert("", tk.END, values=row)
+
+            a = self.library.cursor.execute("SELECT SUM(price) FROM library where dateee not in('')").fetchall()
+            pr = "цена:", a
+            lol = Label(master=frame_all_books, text="")
+            lol.grid(row=1,  )
+            lol.config(text=pr)
+
+            b = self.library.cursor.execute("SELECT COUNT(*) FROM library WHERE dateee not in('')").fetchall()
+            count = 'количество', b
+            lol1 = Label(master=frame_all_books, text="")
+            lol1.grid(row=2, )
+            lol1.config(text=count)
 
 
 
