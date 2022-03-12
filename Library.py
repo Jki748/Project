@@ -93,7 +93,7 @@ class App:
     def __init__(self):
         self.library = Library_db()
         self.window = Tk()
-        self.window.geometry('810x370')
+        self.window.geometry('850x370')
         self. window.title("Приложение для учета книг")
         self.menu()
 
@@ -172,7 +172,7 @@ class App:
         tree.column("#5", width=100)
         tree.column("#6", width=100)
         tree.column("#7", width=50)
-        tree.column("#8", width=80)
+        tree.column("#8", width=118)
         tree.column("#9", width=129)
 
         tree.grid()
@@ -328,7 +328,7 @@ class App:
         tree.column("#5", width=100)
         tree.column("#6", width=100)
         tree.column("#7", width=50)
-        tree.column("#8", width=80)
+        tree.column("#8", width=118)
         tree.column("#9", width=129)
 
 
@@ -402,7 +402,7 @@ class App:
         tree.column("#5", width=100)
         tree.column("#6", width=100)
         tree.column("#7", width=50)
-        tree.column("#8", width=80)
+        tree.column("#8", width=118)
         tree.column("#9", width=129)
 
         tree.grid()
@@ -517,7 +517,7 @@ class App:
         tree.column("#5", width=100)
         tree.column("#6", width=100)
         tree.column("#7", width=50)
-        tree.column("#8", width=80)
+        tree.column("#8", width=118)
         tree.column("#9", width=129)
 
         tree.grid()
