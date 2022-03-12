@@ -1,14 +1,8 @@
 import sqlite3
-from tkinter import Tk, Label, Frame, Menu, StringVar, Entry, Button
 from tkinter import ttk
 import tkinter as tk
 from tkinter import *
 from datetime import datetime
-import configparser
-
-data = datetime.now().date()
-
-
 
 class Library_db():
     def __init__(self):
@@ -26,30 +20,16 @@ class Library_db():
             izd VARCHAR(100)
             ) """)
 
-
-
-        # self.db = sqlite3.connect("lib.db")
         self.cursor.execute("""CREATE TABLE IF NOT EXISTS Inv (
                     id INTEGER PRIMARY KEY AUTOINCREMENT,
                     inv_num INTEGER
                     ) """)
-
-
-
-
-
 
     def create(self, date, number, name, author, datee, price, dateee, izd):
         self.cursor.execute(
             "INSERT OR IGNORE INTO library (date, number, name, author, datee, price, dateee, izd) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
             (date, number, name, author, datee, price, dateee, izd))
         self.db.commit()
-
-    # def create_to_Inv(self, inv_num):
-    #     self.cursor.execute(
-    #         "INSERT OR IGNORE INTO library (inv_num) VALUES (?)",
-    #         (inv_num))
-    #     self.db.commit()
 
 
     def list(self):
@@ -58,27 +38,9 @@ class Library_db():
 
 
 
-
-
-    def fill_to_sec_table(self):
-        pass
-        #self.cursor.execute("INSERT OR IGNORE INTO Inv (inv_num) VALUES (?)",())
-        # elf.db.commit()
-
-        # global C
-        # A = self.cursor.execute("""select number from Library where dateee is not in ('')""")
-        # Lib = set(A)
-        # B = self.cursor.execute("""select inv_num from Inv""")
-        # Inv = set(B)
-        # C = set(A) - set(B)
-        # print(C)
-
-
     def delete_sec_table(self):
         self.cursor.execute("""DROP TABLE Inv""")
         self.db.commit()
-
-
 
 
 class App:
@@ -97,7 +59,7 @@ class App:
         self. window.title("Приложение для учета книг")
         self.menu()
 
-        # self.fill()
+
         self.window.mainloop()
 
     def menu(self):
@@ -109,9 +71,6 @@ class App:
         mainmenu.add_command(label='Поиск книг по номеру', command=self.search_book_n)
         mainmenu.add_command(label='Список потерянных книг', command=self.spisok)
 
-
-    # def clear(self):
-    #     self.window.destroy()
 
     def spisok(self):
         self.frames_clear()
@@ -136,8 +95,6 @@ class App:
                 tree.insert("", tk.END, values=row)
             self.library.db.commit()
 
-        # self.library.cursor.execute(
-            # "update library set izd = 34 where library.id in (select id from library left outer join Inv on library.number = Inv.inv_num where Inv.inv_num is NULL and library.izd = '')")
         def spisat():
             num_akta = num_akta_entry.get()
             year = datetime.today().date()
@@ -145,11 +102,6 @@ class App:
             sql1 = "update library set izd = {0}, dateee = datetime('now') where library.id in (select library.id from library left outer join Inv on library.number = Inv.inv_num where Inv.inv_num is NULL and library.izd = '')".format(num_akta, year)
             self.library.cursor.execute(sql1)
             self.library.db.commit()
-
-
-
-
-
 
 
         tree = ttk.Treeview(master=frame_fill_1, column=(
@@ -202,7 +154,6 @@ class App:
         frame_fill_1.pack()
 
 
-
     def fill(self):
         self.frames_clear()
         def save():
@@ -228,10 +179,8 @@ class App:
         lb = Label(master=frame_fill, text="")
         lb.grid(row=14, column=4, sticky="w")
 
-
         save = Label(master=frame_fill, text="")
         save.grid(row=30, column=4, sticky="w")
-
 
         date_label = Label(master=frame_fill, text="Дата:")
         number_label = Label(master=frame_fill, text="Инвентарный номер:")
@@ -270,7 +219,6 @@ class App:
         izd_entry.grid(row=10, column=4, sticky="w")
         frame_fill.pack(fill='both')
 
-
     def search_book(self):
         self.frames_clear()
 
@@ -292,9 +240,6 @@ class App:
             lol15.grid(row=2, )
             lol15.config(text="Удалено")
 
-
-
-
         def show_book(s):
             for i in tree.get_children():
                 tree.delete(i)
@@ -306,9 +251,6 @@ class App:
                 tree.insert("", tk.END, values=row)
         def show_boooook():
             show_book(s.get())
-
-
-
 
         tree = ttk.Treeview(master=frame_search_books, column=("column1", "column2", "column3", "column4", "column5", "column6", "column7", "column8", "coloumn9"), show='headings')
         tree.heading("#1", text="id")
@@ -331,12 +273,10 @@ class App:
         tree.column("#8", width=118)
         tree.column("#9", width=129)
 
-
         tree.grid()
 
         s_label.grid(sticky="w")
         s_entry.grid(sticky="w")
-
 
         b2 = Button(master=frame_search_books, text="Поиск", command=show_boooook)
         b2.grid(sticky="w")
@@ -346,7 +286,6 @@ class App:
 
         b7 = Button(master=frame_search_books, text="Удалить книгу", command = delete_book_a )
         b7.grid(sticky="w")
-
 
         frame_search_books.pack()
 
@@ -369,7 +308,6 @@ class App:
             lol15 = Label(master=frame_search_books, text="")
             lol15.grid(row=2, )
             lol15.config(text="Удалено")
-
 
         def show_book_n(s):
             for i in tree.get_children():
@@ -421,12 +359,9 @@ class App:
 
         frame_search_books.pack()
 
-
-
     def all_books(self):
         self.frames_clear()
-        # frame_all_books = tk.Frame()
-        # self.frames.append(frame_all_books)
+
         def show_books():
             for i in tree.get_children():
                 tree.delete(i)
@@ -446,7 +381,6 @@ class App:
             lol1 = Label(master=frame_all_books, text="")
             lol1.grid(row=2, )
             lol1.config(text=count)
-
 
         def in_library():
             for i in tree.get_children():
@@ -471,8 +405,6 @@ class App:
             lol1.grid(row=2, )
             lol1.config(text=count)
 
-
-
         def not_in_library():
             for i in tree.get_children():
                 tree.delete(i)
@@ -492,8 +424,6 @@ class App:
             lol1 = Label(master=frame_all_books, text="")
             lol1.grid(row=2, )
             lol1.config(text=count)
-
-
 
         frame_all_books = tk.Frame()
         self.frames.append(frame_all_books)
@@ -522,7 +452,6 @@ class App:
 
         tree.grid()
 
-
         b2 = Button(master=frame_all_books, text="Вывести книги в библиотеке", command=in_library)
         b2.grid(sticky="w")
 
@@ -533,7 +462,4 @@ class App:
         b4.grid(sticky="w")
 
         frame_all_books.pack()
-
-
 App()
-
