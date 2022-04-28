@@ -20,6 +20,7 @@ class Library_db():
             izd VARCHAR(100)
             ) """)
 
+
         self.cursor.execute("""CREATE TABLE IF NOT EXISTS Inv (
                     id INTEGER PRIMARY KEY AUTOINCREMENT,
                     inv_num INTEGER
@@ -46,8 +47,6 @@ class Library_db():
 class App:
     frames = []
 
-
-
     def frames_clear(self):
         for i in self.frames:
             i.destroy()
@@ -56,7 +55,7 @@ class App:
         self.library = Library_db()
         self.window = Tk()
         self.window.geometry('850x370')
-        self. window.title("Приложение для учета книг")
+        self. window.title("A'books")
         self.menu()
 
 
@@ -90,7 +89,6 @@ class App:
                 tree.delete(i)
             rows=self.library.cursor.execute(
                 "select * from library left outer join Inv on library.number = Inv.inv_num where Inv.inv_num is NULL and library.izd = ''").fetchall()
-            # rows = self.library.cursor.fetchall()
             for row in rows:
                 tree.insert("", tk.END, values=row)
             self.library.db.commit()
@@ -98,11 +96,14 @@ class App:
         def spisat():
             num_akta = num_akta_entry.get()
             year = datetime.today().date()
-            # year = datetime.today().date()
             sql1 = "update library set izd = {0}, dateee = datetime('now') where library.id in (select library.id from library left outer join Inv on library.number = Inv.inv_num where Inv.inv_num is NULL and library.izd = '')".format(num_akta, year)
             self.library.cursor.execute(sql1)
             self.library.db.commit()
+            delete_spisok()
 
+        def delete_spisok():
+            self.library.cursor.execute("DROP TABLE Inv")
+            self.library.db.commit()
 
         tree = ttk.Treeview(master=frame_fill_1, column=(
         "column1", "column2", "column3", "column4", "column5", "column6", "column7", "column8", "coloumn9"),
@@ -463,3 +464,31 @@ class App:
 
         frame_all_books.pack()
 App()
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
